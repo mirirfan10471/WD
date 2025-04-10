@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mir - Treasures of Kashmir</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #E0E0E0;
+      color: #3A606E;
+    }
+    header {
+      background-color: #3A606E;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background-color: #607B7D;
+    }
+    nav a {
+      margin: 1rem;
+      text-decoration: none;
+      color: white;
+      font-weight: bold;
+    }
+    .container {
+      padding: 2rem;
+      max-width: 900px;
+      margin: auto;
+    }
+    .product {
+      background: #AAAE8E;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      color: #3A606E;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .product img {
+      width: 120px;
+      height: auto;
+      border-radius: 8px;
+    }
+    .product-details {
+      flex: 1;
+    }
+    input, button {
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #607B7D;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+    .hidden { display: none; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background-color: white;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 8px;
+      text-align: left;
+    }
+    .remove-btn, .qty-btn {
+      background-color: #3A606E;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      border-radius: 5px;
+      margin-left: 5px;
+    }
+    .qty-btn {
+      background-color: #828E82;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Mir - Treasures of Kashmir</h1>
+    <p>Authentic Dry Fruits, Saffron & Walnuts from the Valleys of Kashmir</p>
+  </header>
+
+  <nav>
+    <a href="#" onclick="showPage('home')">Home</a>
+    <a href="#" onclick="showPage('auth')">Login / Signup</a>
+    <a href="#" onclick="showPage('checkout')">Checkout</a>
+    <a href="#" onclick="showPage('billing')">Billing</a>
+  </nav>
+
+  <div id="home" class="container">
+    <h2>Our Products</h2>
+
+    <div style="margin-bottom: 2rem;">
+      
+      <p style="text-align:center; color:#607B7D; margin-top:0.5rem;">Experience the richness of Kashmir in motion</p>
+    </div>
+
+    <div class="product">
+      <img src="https://img.freepik.com/free-photo/lohri-festival-celebration-india_23-2151099145.jpg" alt="Dry Fruits">
+      <div class="product-details">
+        <h3>Dry Fruits - ₹500/kg</h3>
+        <p>Premium quality Kashmiri almonds, raisins & more.</p>
+        <button onclick="addToCart('Dry Fruits', 500)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product">
+      <img src="https://img.freepik.com/free-photo/saffron-spice-still-life-composition_23-2149130016.jpg" alt="Saffron">
+      <div class="product-details">
+        <h3>Saffron - ₹1000/g</h3>
+        <p>Pure, hand-picked Kashmiri saffron strands.</p>
+        <button onclick="addToCart('Saffron', 1000)">Add to Cart</button>
+      </div>
+    </div>
+
+    <div class="product">
+      <img src="https://img.freepik.com/free-photo/top-view-walnuts-bowl-rustic_141793-6324.jpg" alt="Walnuts">
+      <div class="product-details">
+        <h3>Walnuts - ₹600/kg</h3>
+        <p>Fresh, crunchy walnuts from Kashmiri orchards.</p>
+        <button onclick="addToCart('Walnuts', 600)">Add to Cart</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="auth" class="container hidden">
+    <h2>Register / Login</h2>
+    <input type="text" id="username" placeholder="Full Name" />
+    <input type="email" id="useremail" placeholder="Email" />
+    <input type="password" id="userpassword" placeholder="Password" />
+    <button onclick="registerUser()">Submit</button>
+  </div>
+
+  <div id="checkout" class="container hidden">
+    <h2>Cart Summary</h2>
+    <ul id="cartItems"></ul>
+    <button onclick="showPage('billing')">Proceed to Billing</button>
+  </div>
+
+  <div id="billing" class="container hidden">
+    <h2>Billing Summary</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Price (₹)</th>
+        </tr>
+      </thead>
+      <tbody id="billingTable"></tbody>
+    </table>
+    <h3 id="totalAmount">Total: ₹0</h3>
+    <button onclick="placeOrder()">Place Order</button>
+  </div>
+
+  <script>
+    let cart = [];
+    let isRegistered = false;
+
+    function showPage(pageId) {
+      ['home', 'auth', 'checkout', 'billing'].forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById(pageId).classList.remove('hidden');
+      if (pageId === 'checkout') updateCartDisplay();
+      if (pageId === 'billing') updateBilling();
+    }
+
+    function registerUser() {
+      const name = document.getElementById('username').value;
+      const email = document.getElementById('useremail').value;
+      const password = document.getElementById('userpassword').value;
+
+      if (name && email && password) {
+        alert('Welcome, ' + name + '! You are registered.');
+        isRegistered = true;
+        showPage('home');
+      } else {
+        alert('Please fill in all fields.');
+      }
+    }
+
+    function addToCart(item, price) {
+      if (!isRegistered) {
+        alert("Please register or login before adding items.");
+        showPage('auth');
+        return;
+      }
+      const existingItem = cart.find(p => p.item === item);
+      if (existingItem) {
+        existingItem.quantity++;
+      } else {
+        cart.push({ item, price, quantity: 1 });
+      }
+      alert(item + " added to cart.");
+    }
+
+    function updateCartDisplay() {
+      const cartList = document.getElementById('cartItems');
+      cartList.innerHTML = '';
+      if (cart.length === 0) {
+        cartList.innerHTML = '<li>Your cart is empty.</li>';
+        return;
+      }
+
+      cart.forEach((p, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `${p.item} - ₹${p.price} x ${p.quantity} = ₹${p.price * p.quantity}
+          <button class="qty-btn" onclick="changeQuantity(${index}, 1)">+</button>
+          <button class="qty-btn" onclick="changeQuantity(${index}, -1)">-</button>
+          <button class="remove-btn" onclick="removeItem(${index})">Remove</button>`;
+        cartList.appendChild(li);
+      });
+    }
+
+    function changeQuantity(index, delta) {
+      cart[index].quantity += delta;
+      if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+      }
+      updateCartDisplay();
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      updateCartDisplay();
+    }
+
+    function updateBilling() {
+      const table = document.getElementById('billingTable');
+      const total = document.getElementById('totalAmount');
+      table.innerHTML = '';
+      let totalCost = 0;
+      cart.forEach(({ item, price, quantity }) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${item}</td><td>${quantity}</td><td>₹${price * quantity}</td>`;
+        table.appendChild(row);
+        totalCost += price * quantity;
+      });
+      total.textContent = `Total: ₹${totalCost}`;
+    }
+
+    function placeOrder() {
+      if (cart.length === 0) {
+        alert('Cart is empty!');
+        return;
+      }
+      alert('Thank you! Your order has been placed.');
+      cart = [];
+      showPage('home');
+    }
+  </script>
+</body>
+</html>
